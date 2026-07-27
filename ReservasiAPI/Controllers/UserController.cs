@@ -15,7 +15,7 @@ public class UserController : ControllerBase
     public UserController(ReservasiDbContext context, IWebHostEnvironment env)
     {
         _context = context;
-        _env = env; // Simpan environment
+        _env = env; 
     }
 
     [HttpGet]
@@ -36,7 +36,6 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
-    // ✅ Tambahan baru: Get user by email
     [HttpGet("byemail/{email}")]
     public async Task<ActionResult<User>> GetUserByEmail(string email)
     {
@@ -69,6 +68,37 @@ public class UserController : ControllerBase
         return NoContent();
     }
 
+    [HttpPut("{id}/profile")]
+    public async Task<IActionResult> UpdateProfile(int id, [FromBody] UpdateProfileRequest request)
+    {
+        var user = await _context.Users.FindAsync(id);
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        user.Fullname = request.Fullname;
+
+        if (!string.IsNullOrEmpty(request.Password))
+        {
+            user.Password = request.Password;
+        }
+
+        await _context.SaveChangesAsync();
+
+        return Ok(new
+        {
+            message = "Profile updated successfully",
+            user = new
+            {
+                id = user.Id,
+                fullname = user.Fullname,
+                email = user.Email,
+                role = user.Role
+            }
+        });
+    }
+
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUser(int id)
     {
@@ -85,8 +115,7 @@ public class UserController : ControllerBase
     [HttpPost("register")]
     public async Task<ActionResult<User>> Register(User user)
     {
-        // Jika role tidak disertakan, default ke 'guest'
-        user.Role = string.IsNullOrEmpty(user.Role) ? "guest" : user.Role;
+        user.Role = string.IsNullOrEmpty(user.Role) ? "Guest" : user.Role;
         user.Createtime = DateTime.Now;
 
         _context.Users.Add(user);
@@ -103,12 +132,12 @@ public class UserController : ControllerBase
 
         if (user == null)
         {
-            return Unauthorized(new { message = "Email atau password salah" });
+            return Unauthorized(new { message = "Wrong email or password!" });
         }
 
         return Ok(new
         {
-            message = "Login Berhasil",
+            message = "Sign in successful!",
             user = new
             {
                 id = user.Id,
@@ -122,19 +151,17 @@ public class UserController : ControllerBase
     [HttpPost("create-admin")]
     public async Task<IActionResult> CreateAdmin([FromBody] User adminUser)
     {
-        // Hanya boleh di development
         if (!_env.IsDevelopment())
         {
             return BadRequest("Only available in development");
         }
 
-        // Validasi email sudah ada
         if (await _context.Users.AnyAsync(u => u.Email == adminUser.Email))
         {
             return BadRequest("Email already exists");
         }
 
-        adminUser.Role = "admin";
+        adminUser.Role = "Admin";
         adminUser.Createtime = DateTime.Now;
 
         _context.Users.Add(adminUser);

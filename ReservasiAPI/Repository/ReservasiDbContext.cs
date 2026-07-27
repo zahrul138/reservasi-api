@@ -14,12 +14,12 @@ namespace ReservasiAPI.Repository
         public virtual DbSet<Booking> Bookings { get; set; }
         public virtual DbSet<Room> Rooms { get; set; }
         public virtual DbSet<Review> Reviews { get; set; }
+        public virtual DbSet<Feedback> Feedbacks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // USER ENTITY
             modelBuilder.Entity<User>(entity =>
             {
                 entity.ToTable("users");
@@ -28,7 +28,6 @@ namespace ReservasiAPI.Repository
                       .HasDefaultValueSql("(getdate())");
             });
 
-            // BOOKING ENTITY
             modelBuilder.Entity<Booking>(entity =>
             {
                 entity.ToTable("booking");
@@ -43,7 +42,6 @@ namespace ReservasiAPI.Repository
                       .HasDefaultValueSql("(getdate())");
             });
 
-            // ROOM ENTITY
             modelBuilder.Entity<Room>(entity =>
             {
                 entity.ToTable("rooms");
@@ -67,7 +65,6 @@ namespace ReservasiAPI.Repository
                 entity.Property(e => e.CreatedAt).HasColumnName("createdat").HasDefaultValueSql("(getdate())");
             });
 
-            // REVIEW ENTITY
             modelBuilder.Entity<Review>(entity =>
             {
                 entity.ToTable("reviews");
@@ -90,6 +87,18 @@ namespace ReservasiAPI.Repository
 
                 entity.Property(e => e.Status)
                       .HasDefaultValue("pending");
+
+                entity.Property(e => e.CreatedAt)
+                      .HasDefaultValueSql("(getdate())");
+            });
+
+            modelBuilder.Entity<Feedback>(entity =>
+            {
+                entity.ToTable("feedbacks");
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Status)
+                      .HasDefaultValue("new");
 
                 entity.Property(e => e.CreatedAt)
                       .HasDefaultValueSql("(getdate())");

@@ -108,6 +108,18 @@ namespace ReservasiAPI.Controllers
                 .ToListAsync();
         }
 
+        [HttpGet("approved")]
+        public async Task<ActionResult<IEnumerable<Review>>> GetAllApprovedReviews([FromQuery] int limit = 5)
+        {
+            return await _context.Reviews
+                .Where(r => r.Status == "approved")
+                .Include(r => r.User)
+                .Include(r => r.Room)
+                .OrderByDescending(r => r.CreatedAt)
+                .Take(limit)
+                .ToListAsync();
+        }
+
         public class StatusUpdateDto
         {
             [Required]
