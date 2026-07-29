@@ -35,7 +35,7 @@ public class PaymentController : ControllerBase
             },
             callbacks = new
             {
-                finish = "http://localhost:3000/bookingformthree" 
+                finish = "http://localhost:3000/booking"
             }
         };
 
