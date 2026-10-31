@@ -130,10 +130,8 @@ namespace ReservasiAPI.Controllers
             existingBooking.TotalPrice = updatedBooking.TotalPrice;
             existingBooking.Status = updatedBooking.Status;
             existingBooking.PhoneNumber = updatedBooking.PhoneNumber;
-            existingBooking.Region = updatedBooking.Region;
-            existingBooking.Address = updatedBooking.Address;
             existingBooking.PaymentMethod = updatedBooking.PaymentMethod;
-            existingBooking.PaymentStatus = updatedBooking.PaymentStatus; // Tambahkan ini
+            existingBooking.PaymentStatus = updatedBooking.PaymentStatus;
 
             await _context.SaveChangesAsync();
             return NoContent();
