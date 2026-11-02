@@ -44,12 +44,6 @@ namespace ReservasiAPI.Repository.Models
         public required string PhoneNumber { get; set; }
 
         [Required]
-        public required string Region { get; set; }
-
-        [Required]
-        public required string Address { get; set; }
-
-        [Required]
         public required string PaymentMethod { get; set; }
 
 
@@ -62,5 +56,8 @@ namespace ReservasiAPI.Repository.Models
 
         [ForeignKey("RoomId")]
         public Room? Room { get; set; }
+
+        [Column("midtransorderid")]
+        public string? MidtransOrderId { get; set; }
     }
 }

@@ -38,6 +38,10 @@ namespace ReservasiAPI.Repository
                       .HasForeignKey(b => b.UserId)
                       .OnDelete(DeleteBehavior.Cascade);
 
+                entity.Property(e => e.MidtransOrderId)
+                      .HasColumnName("midtransorderid")
+                      .HasMaxLength(100);
+
                 entity.Property(e => e.CreatedAt)
                       .HasDefaultValueSql("(getdate())");
             });
