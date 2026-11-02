@@ -19,7 +19,6 @@ namespace ReservasiAPI.Repository.Models
         public string? Fullname { get; set; }
         public string? Email { get; set; }
 
-
         [Required]
         public DateTime CheckinDate { get; set; }
 
@@ -45,7 +44,6 @@ namespace ReservasiAPI.Repository.Models
 
         [Required]
         public required string PaymentMethod { get; set; }
-
 
         [Column("paymentstatus")]
         [Required]
