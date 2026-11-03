@@ -41,7 +41,6 @@ namespace ReservasiAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            // Validasi ketersediaan kamar
             var room = await _context.Rooms.FirstOrDefaultAsync(r => r.Title == booking.RoomType);
             if (room == null)
             {
@@ -54,14 +53,12 @@ namespace ReservasiAPI.Controllers
                 return BadRequest("This room type is fully booked.");
             }
 
-            // Validasi user
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == booking.UserId);
             if (user == null)
             {
                 return BadRequest("User not found.");
             }
 
-            // Validasi duplikat booking
             var isDuplicate = await _context.Bookings.AnyAsync(b =>
                 b.Fullname == booking.Fullname &&
                 b.Email == booking.Email &&
@@ -75,7 +72,6 @@ namespace ReservasiAPI.Controllers
                 return BadRequest(new { message = "Duplicate booking detected." });
             }
 
-            // Set default values
             booking.Status = string.IsNullOrWhiteSpace(booking.Status) ? "Pending" : booking.Status;
             booking.PaymentMethod = string.IsNullOrWhiteSpace(booking.PaymentMethod)
                 ? "Cash Payment"
@@ -103,24 +99,22 @@ namespace ReservasiAPI.Controllers
         public async Task<IActionResult> UpdateBooking(int id, Booking updatedBooking)
         {
             if (id != updatedBooking.Id)
-                return BadRequest("ID tidak sesuai.");
+                return BadRequest("Invalid Id.");
 
             var existingBooking = await _context.Bookings.FindAsync(id);
             if (existingBooking == null)
-                return NotFound("Booking tidak ditemukan.");
+                return NotFound("Booking not found.");
 
             if (existingBooking.UserId != updatedBooking.UserId)
             {
                 var user = await _context.Users.FindAsync(updatedBooking.UserId);
                 if (user == null)
-                    return BadRequest("User tidak ditemukan.");
+                    return BadRequest("User not found.");
 
                 existingBooking.UserId = updatedBooking.UserId;
                 existingBooking.Fullname = user.Fullname ?? "Guest";
                 existingBooking.Email = user.Email ?? "unknown@example.com";
             }
-
-            // Update all relevant fields
             existingBooking.CheckinDate = updatedBooking.CheckinDate;
             existingBooking.CheckoutDate = updatedBooking.CheckoutDate;
             existingBooking.RoomType = updatedBooking.RoomType;
@@ -156,13 +150,12 @@ namespace ReservasiAPI.Controllers
         {
             var booking = await _context.Bookings.FindAsync(id);
             if (booking == null)
-                return NotFound("Booking tidak ditemukan.");
+                return NotFound("Booking not found.");
 
             foreach (var prop in updates.EnumerateObject())
             {
                 var propertyName = prop.Name;
 
-                // Skip properti yang tidak boleh diubah
                 if (propertyName.Equals("id", StringComparison.OrdinalIgnoreCase) ||
                     propertyName.Equals("userId", StringComparison.OrdinalIgnoreCase) ||
                     propertyName.Equals("user", StringComparison.OrdinalIgnoreCase))
@@ -178,7 +171,6 @@ namespace ReservasiAPI.Controllers
                     {
                         object value = null;
 
-                        // Deteksi tipe data untuk konversi nilai
                         if (propertyInfo.PropertyType == typeof(string))
                             value = prop.Value.GetString();
                         else if (propertyInfo.PropertyType == typeof(int))
@@ -192,13 +184,13 @@ namespace ReservasiAPI.Controllers
                         else if (propertyInfo.PropertyType == typeof(bool))
                             value = prop.Value.GetBoolean();
                         else
-                            continue; // skip jika tipe tidak dikenali
+                            continue; 
 
                         propertyInfo.SetValue(booking, value);
                     }
                     catch (Exception ex)
                     {
-                        return BadRequest($"Gagal memproses properti '{propertyName}': {ex.Message}");
+                        return BadRequest($"Failed to process property '{propertyName}': {ex.Message}");
                     }
                 }
             }
